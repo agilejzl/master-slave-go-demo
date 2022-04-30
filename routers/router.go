@@ -9,7 +9,7 @@ package routers
 
 import (
 	beego "github.com/beego/beego/v2/server/web"
-	"master-slave-go-demo/controllers"
+	"master-slave-go-demo/controllers/api"
 )
 
 func init() {
