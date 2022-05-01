@@ -11,17 +11,17 @@ import (
 )
 
 type Products struct {
-	Id          int       `orm:"column(id);auto"`
-	OwnerId     int       `orm:"column(owner_id)"`
+	Id          int64     `orm:"column(id);auto"`
+	OwnerId     int64     `orm:"column(owner_id)"`
 	Name        string    `orm:"column(name);size(255)"`
 	StockAmount int       `orm:"column(stock_amount)"`
 	PdPrice     float64   `orm:"column(pd_price);digits(8);decimals(2)"`
-	CreatedAt   time.Time `orm:"column(created_at);type(datetime)"`
-	UpdatedAt   time.Time `orm:"column(updated_at);type(datetime)"`
+	CreatedAt   time.Time `orm:"column(created_at);type(datetime);auto_now_add"`
+	UpdatedAt   time.Time `orm:"column(updated_at);type(datetime);auto_now"`
 }
 
 type ProductsResp struct {
-	Id          int
+	Id          int64
 	Name        string
 	StockAmount int
 	PdPrice     float64
@@ -46,7 +46,7 @@ func AddProducts(m *Products) (id int64, err error) {
 
 // GetProductsById retrieves Products by Id. Returns error if
 // Id doesn't exist
-func GetProductsById(id int) (v *Products, err error) {
+func GetProductsById(id int64) (v *Products, err error) {
 	o := orm.NewOrm()
 	v = &Products{Id: id}
 	if err = o.Read(v); err == nil {
@@ -150,7 +150,7 @@ func UpdateProductsById(m *Products) (err error) {
 
 // DeleteProducts deletes Products by Id and returns error if
 // the record to be deleted doesn't exist
-func DeleteProducts(id int) (err error) {
+func DeleteProducts(id int64) (err error) {
 	o := orm.NewOrm()
 	v := Products{Id: id}
 	// ascertain id exists in the database

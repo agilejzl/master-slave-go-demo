@@ -1,45 +1,77 @@
 package helper
 
 import (
+	"fmt"
 	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/bxcodec/faker/v3"
 	"master-slave-go-demo/models"
 	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type FakeData struct{}
 
-func (fd FakeData) FakeUser(userId int) (interface{}, error) {
+func (fd FakeData) genRandInt(minNum int, maxNum int) int {
+	return minNum + rand.Intn(maxNum-minNum)
+}
+
+func (fd FakeData) genRandInt64(minNum int64, maxNum int64) int64 {
+	return minNum + rand.Int63n(maxNum-minNum)
+}
+
+func (fd FakeData) genRandFloat64(min, max float64) float64 {
+	res := make([]float64, 1)
+	for i := range res {
+		res[i] = min + rand.Float64()*(max-min)
+	}
+	return res[0]
+}
+
+func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
+	product := models.Products{OwnerId: userId}
+	product.Name = "No." + " " + faker.Phonenumber()
+	product.StockAmount = fd.genRandInt(5400, 5600)
+	product.PdPrice = fd.genRandFloat64(0.0, 9.99)
+
+	id, err := models.AddProducts(&product)
+	if err == nil {
+		fmt.Println("NewProduct Id", id, ":", product)
+		return product, err
+	} else {
+		logs.Error("Error NewProduct:", err)
+		return nil, err
+	}
+}
+
+func (fd FakeData) FakeNewUser(userId int64) (interface{}, error) {
 	existUser, err := models.GetUsersById(userId)
 	if existUser != nil {
 		// logs.Debug("existUser:", existUser)
 		return existUser, err
 	} else {
-		userIdStr := "No." + strconv.Itoa(userId) + " " + faker.FirstName()
-		userModel := models.Users{Id: userId, Name: userIdStr, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+		userIdStr := "No." + strconv.FormatInt(userId, 10) + " " + faker.FirstName()
+		userModel := models.Users{Id: userId, Name: userIdStr}
 		_, err := models.AddUsers(&userModel)
 		if err == nil {
 			return userModel, err
 		} else {
-			logs.Error("Error AddUser:", err)
+			logs.Error("Error NewUser:", err)
 			return nil, err
 		}
 	}
 }
 
-func (fd FakeData) RandUserId(authUserStr []string) int {
-	minId := 0
+func (fd FakeData) RandUserId(authUserStr []string) int64 {
+	var minId int64
 	if authUserStr == nil {
 		return minId
 	} else {
 		rangeIds := strings.Split(authUserStr[0], "-")
-		minId, _ = strconv.Atoi(rangeIds[0])
+		minId, _ = strconv.ParseInt(rangeIds[0], 10, 0)
 		if len(rangeIds) >= 2 {
-			maxId, _ := strconv.Atoi(rangeIds[1])
-			return minId + rand.Intn(maxId-minId)
+			maxId, _ := strconv.ParseInt(rangeIds[1], 10, 0)
+			return fd.genRandInt64(minId, maxId)
 		} else {
 			return minId
 		}

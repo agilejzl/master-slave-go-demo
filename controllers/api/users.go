@@ -25,7 +25,7 @@ func (c *UsersController) URLMapping() {
 // @router /:id [get]
 func (c *UsersController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
+	id, _ := strconv.ParseInt(idStr, 10, 0)
 	data, err := models.GetUsersById(id)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)

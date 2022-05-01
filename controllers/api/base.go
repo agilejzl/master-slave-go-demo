@@ -8,6 +8,7 @@ import (
 	"github.com/beego/beego/v2/server/web/context"
 	"master-slave-go-demo/helper"
 	"master-slave-go-demo/models"
+	"strconv"
 )
 
 type BaseController struct {
@@ -21,20 +22,37 @@ type ReturnMsg struct {
 	Data        interface{}
 }
 
-func (this *BaseController) cookieUser() interface{} {
+func (this *BaseController) currentUser() models.UsersResp {
+	currentUser, _ := (this.cookieUser("UsersResp")).(models.UsersResp)
+	return currentUser
+}
+
+func (this *BaseController) currUserId() int64 {
+	return this.currentUser().Id
+}
+
+func (this *BaseController) currUserIdStr() string {
+	return strconv.FormatInt(this.currUserId(), 10)
+}
+
+func (this *BaseController) cookieUser(clazzName string) interface{} {
 	cookie, _ := this.GetSecureCookie("", "userInfo")
-	currentUser := models.UsersResp{}
-	json.Unmarshal([]byte(cookie), &currentUser)
-	if currentUser.Id > 0 {
+	currentUser := models.Users{}
+	currentUserResp := models.UsersResp{}
+
+	if clazzName == "Users" {
+		json.Unmarshal([]byte(cookie), &currentUser)
 		return currentUser
 	} else {
-		return nil
+		json.Unmarshal([]byte(cookie), &currentUserResp)
+		return currentUserResp
 	}
+	return nil
 }
 
 func (this *BaseController) SuccessJson(data interface{}) {
 	res := ReturnMsg{
-		200, "success", this.cookieUser(), data,
+		200, "success", this.cookieUser("UsersResp"), data,
 	}
 	this.Data["json"] = res
 	this.ServeJSON() // 对json进行序列化输出
@@ -60,7 +78,7 @@ func init() {
 		if userId <= 0 {
 			errorCode = 401
 		} else {
-			currentUser, err := helper.FakeData{}.FakeUser(userId)
+			currentUser, err := helper.FakeData{}.FakeNewUser(userId)
 			if currentUser == nil {
 				if err == nil {
 					errorCode = 401

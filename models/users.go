@@ -11,15 +11,15 @@ import (
 )
 
 type Users struct {
-	Id        int       `orm:"column(id);auto"`
+	Id        int64     `orm:"column(id);auto"`
 	Name      string    `orm:"column(name);size(32)"`
 	Credit    float64   `orm:"column(credit);digits(12);decimals(2)"`
-	CreatedAt time.Time `orm:"column(created_at);type(datetime)"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
+	CreatedAt time.Time `orm:"column(created_at);type(datetime);auto_now_add"`
+	UpdatedAt time.Time `orm:"column(updated_at);type(datetime);auto_now"`
 }
 
 type UsersResp struct {
-	Id        int
+	Id        int64
 	Name      string
 	Credit    float64
 	UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
@@ -43,7 +43,7 @@ func AddUsers(m *Users) (id int64, err error) {
 
 // GetUsersById retrieves Users by Id. Returns error if
 // Id doesn't exist
-func GetUsersById(id int) (v *Users, err error) {
+func GetUsersById(id int64) (v *Users, err error) {
 	o := orm.NewOrm()
 	v = &Users{Id: id}
 	if err = o.Read(v); err == nil {
@@ -147,7 +147,7 @@ func UpdateUsersById(m *Users) (err error) {
 
 // DeleteUsers deletes Users by Id and returns error if
 // the record to be deleted doesn't exist
-func DeleteUsers(id int) (err error) {
+func DeleteUsers(id int64) (err error) {
 	o := orm.NewOrm()
 	v := Users{Id: id}
 	// ascertain id exists in the database

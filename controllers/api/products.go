@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
+	"master-slave-go-demo/helper"
 	"master-slave-go-demo/models"
 	"strconv"
 )
@@ -26,18 +26,14 @@ func (c *ProductsController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *ProductsController) Post() {
-	var v models.Products
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddProducts(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	// var product models.Products
+	// json.Unmarshal(c.Ctx.Input.RequestBody, &product)
+	data, err := helper.FakeData{}.FakeNewProduct(c.currUserId())
+	if err == nil {
+		c.SuccessJson(data)
 	} else {
-		c.Data["json"] = err.Error()
+		c.ErrorJson(400, err.Error(), data)
 	}
-	c.ServeJSON()
 }
 
 // GetOne ...
@@ -49,7 +45,7 @@ func (c *ProductsController) Post() {
 // @router /:id [get]
 func (c *ProductsController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
+	id, _ := strconv.ParseInt(idStr, 10, 0)
 	data, err := models.GetProductsById(id)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
@@ -78,6 +74,7 @@ func (c *ProductsController) GetAll() {
 	var limit int64 = 10
 	var offset int64
 
+	query["OwnerId"] = c.currUserIdStr()
 	data, err := models.GetAllProducts(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
