@@ -18,6 +18,13 @@ type Users struct {
 	UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
 }
 
+type UsersResp struct {
+	Id        int
+	Name      string
+	Credit    float64
+	UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
+}
+
 func (t *Users) TableName() string {
 	return "users"
 }

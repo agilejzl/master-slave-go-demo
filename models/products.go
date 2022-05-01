@@ -20,6 +20,14 @@ type Products struct {
 	UpdatedAt   time.Time `orm:"column(updated_at);type(datetime)"`
 }
 
+type ProductsResp struct {
+	Id          int
+	Name        string
+	StockAmount int
+	PdPrice     float64
+	UpdatedAt   time.Time `orm:"column(updated_at);type(datetime)"`
+}
+
 func (t *Products) TableName() string {
 	return "products"
 }
