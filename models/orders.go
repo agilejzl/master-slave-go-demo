@@ -11,14 +11,25 @@ import (
 )
 
 type Orders struct {
-	Id         int       `orm:"column(id);auto"`
-	UserId     int       `orm:"column(user_id)"`
-	ProductId  int       `orm:"column(product_id)"`
+	Id         int64     `orm:"column(id);auto"`
+	UserId     int64     `orm:"column(user_id)"`
+	ProductId  int64     `orm:"column(product_id)"`
 	PdAmount   int       `orm:"column(pd_amount)"`
 	TotalPrice float64   `orm:"column(total_price);digits(10);decimals(2)"`
 	Status     int8      `orm:"column(status);null"`
-	CreatedAt  time.Time `orm:"column(created_at);type(datetime)"`
+	CreatedAt  time.Time `orm:"column(created_at);type(datetime);auto_now_add"`
+	UpdatedAt  time.Time `orm:"column(updated_at);type(datetime);auto_now"`
+}
+
+type OrdersResp struct {
+	Id         int64
+	UserId     int64
+	PdAmount   int
+	PdPrice    float64
+	TotalPrice float64
+	Status     int8
 	UpdatedAt  time.Time `orm:"column(updated_at);type(datetime)"`
+	Product    *Products
 }
 
 func (t *Orders) TableName() string {
@@ -37,12 +48,12 @@ func AddOrders(m *Orders) (id int64, err error) {
 	return
 }
 
-// GetOrdersById retrieves Orders by Id. Returns error if
-// Id doesn't exist
-func GetOrdersById(id int) (v *Orders, err error) {
+// retrieves Orders by Id. Returns error if Id doesn't exist
+func GetOrdersById(id int64) (v interface{}, err error) {
 	o := orm.NewOrm()
 	v = &Orders{Id: id}
 	if err = o.Read(v); err == nil {
+		//fmt.Println("OrdersById", id, v)
 		return v, nil
 	}
 	return nil, err
@@ -143,7 +154,7 @@ func UpdateOrdersById(m *Orders) (err error) {
 
 // DeleteOrders deletes Orders by Id and returns error if
 // the record to be deleted doesn't exist
-func DeleteOrders(id int) (err error) {
+func DeleteOrders(id int64) (err error) {
 	o := orm.NewOrm()
 	v := Orders{Id: id}
 	// ascertain id exists in the database

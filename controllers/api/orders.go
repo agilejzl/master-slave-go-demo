@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
+	"master-slave-go-demo/helper"
 	"master-slave-go-demo/models"
 	"strconv"
 )
@@ -27,18 +27,12 @@ func (c *OrdersController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *OrdersController) Post() {
-	var v models.Orders
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddOrders(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
-		}
+	data, err := helper.FakeData{}.FakeNewOrder(c.currUserId())
+	if err == nil {
+		c.SuccessJson(data)
 	} else {
-		c.Data["json"] = err.Error()
+		c.ErrorJson(400, err.Error(), data)
 	}
-	c.ServeJSON()
 }
 
 // GetOne ...
@@ -50,7 +44,7 @@ func (c *OrdersController) Post() {
 // @router /:id [get]
 func (c *OrdersController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
+	id, _ := strconv.ParseInt(idStr, 10, 0)
 	data, err := models.GetOrdersById(id)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
@@ -79,6 +73,7 @@ func (c *OrdersController) GetAll() {
 	var limit int64 = 10
 	var offset int64
 
+	query["UserId"] = c.currUserIdStr()
 	data, err := models.GetAllOrders(query, fields, sortby, order, offset, limit)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)

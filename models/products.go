@@ -44,8 +44,7 @@ func AddProducts(m *Products) (id int64, err error) {
 	return
 }
 
-// GetProductsById retrieves Products by Id. Returns error if
-// Id doesn't exist
+// retrieves Products by Id. Returns error if Id doesn't exist
 func GetProductsById(id int64) (v *Products, err error) {
 	o := orm.NewOrm()
 	v = &Products{Id: id}
@@ -53,6 +52,12 @@ func GetProductsById(id int64) (v *Products, err error) {
 		return v, nil
 	}
 	return nil, err
+}
+
+func GetRandomProduct() (v *Products) {
+	o := orm.NewOrm()
+	o.Raw("SELECT * FROM products ORDER BY RAND() LIMIT 1;").QueryRow(&v)
+	return v
 }
 
 // GetAllProducts retrieves all Products matches certain condition. Returns empty list if

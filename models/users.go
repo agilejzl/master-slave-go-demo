@@ -41,8 +41,7 @@ func AddUsers(m *Users) (id int64, err error) {
 	return
 }
 
-// GetUsersById retrieves Users by Id. Returns error if
-// Id doesn't exist
+// retrieves Users by Id. Returns error if Id doesn't exist
 func GetUsersById(id int64) (v *Users, err error) {
 	o := orm.NewOrm()
 	v = &Users{Id: id}

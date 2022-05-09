@@ -28,6 +28,21 @@ func (fd FakeData) genRandFloat64(min, max float64) float64 {
 	return res[0]
 }
 
+func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
+	randProduct := models.GetRandomProduct()
+	PdAmount := fd.genRandInt(1, 10)
+	order := models.Orders{UserId: userId, ProductId: randProduct.Id,
+		Status: 0, PdAmount: PdAmount, TotalPrice: float64(PdAmount) * randProduct.PdPrice}
+	id, err := models.AddOrders(&order)
+	if err == nil {
+		fmt.Println("NewOrder Id", id, ":", order)
+		return order, err
+	} else {
+		logs.Error("Error NewOrder:", err)
+		return models.Orders{}, err
+	}
+}
+
 func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
 	product := models.Products{OwnerId: userId}
 	product.Name = "No." + " " + faker.Phonenumber()
