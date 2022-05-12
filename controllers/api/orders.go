@@ -45,7 +45,9 @@ func (c *OrdersController) Post() {
 func (c *OrdersController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 10, 0)
-	data, err := models.GetOrdersById(id)
+	order, err := models.GetOrdersById(id)
+	data := c.asJson(order, "OrdersResp", map[string]string{})
+
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
 	} else {
@@ -74,7 +76,10 @@ func (c *OrdersController) GetAll() {
 	var offset int64
 
 	query["UserId"] = c.currUserIdStr()
-	data, err := models.GetAllOrders(query, fields, sortby, order, offset, limit)
+	orders, err := models.GetAllOrders(query, fields, sortby, order, offset, limit)
+	query["NoOwner"] = "true"
+	data := c.asJsonArray(orders, "OrdersResp", query)
+
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
 	} else {

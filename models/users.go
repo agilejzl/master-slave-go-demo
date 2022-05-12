@@ -19,10 +19,10 @@ type Users struct {
 }
 
 type UsersResp struct {
-	Id        int64
-	Name      string
-	Credit    float64
-	UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
+	Id   int64
+	Name string
+	//Credit float64
+	//UpdatedAt time.Time `orm:"column(updated_at);type(datetime)"`
 }
 
 func (t *Users) TableName() string {

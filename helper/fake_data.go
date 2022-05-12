@@ -44,7 +44,7 @@ func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
 }
 
 func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
-	product := models.Products{OwnerId: userId}
+	product := models.Products{Id: userId}
 	product.Name = "No." + " " + faker.Phonenumber()
 	product.StockAmount = fd.genRandInt(5400, 5600)
 	product.PdPrice = fd.genRandFloat64(0.0, 9.99)
@@ -59,6 +59,7 @@ func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
 	}
 }
 
+// FakeNewUser 根据用户ID，查找或创建用户
 func (fd FakeData) FakeNewUser(userId int64) (interface{}, error) {
 	existUser, err := models.GetUsersById(userId)
 	if existUser != nil {

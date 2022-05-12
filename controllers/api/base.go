@@ -8,6 +8,7 @@ import (
 	"github.com/beego/beego/v2/server/web/context"
 	"master-slave-go-demo/helper"
 	"master-slave-go-demo/models"
+	"reflect"
 	"strconv"
 )
 
@@ -35,19 +36,60 @@ func (this *BaseController) currUserIdStr() string {
 	return strconv.FormatInt(this.currUserId(), 10)
 }
 
-func (this *BaseController) cookieUser(clazzName string) interface{} {
-	cookie, _ := this.GetSecureCookie("", "userInfo")
-	currentUser := models.Users{}
-	currentUserResp := models.UsersResp{}
+// 将数组里的每个对象转化为指定结构体
+func (this *BaseController) asJsonArray(data []interface{}, clazzName string, options map[string]string) []interface{} {
+	var jsonResp []interface{}
+	for _, model := range data {
+		jsonResp = append(jsonResp, this.asJson(model, clazzName, options))
+	}
+	return jsonResp
+}
 
-	if clazzName == "Users" {
-		json.Unmarshal([]byte(cookie), &currentUser)
-		return currentUser
+// 将单个对象转化为指定结构体，data 为字符串或者 Model 对象
+func (this *BaseController) asJson(data interface{}, clazzName string, options map[string]string) interface{} {
+	var resByte string
+	//fmt.Println(clazzName, " reflect.TypeOf(data).Name(): ", reflect.TypeOf(data).Kind())
+	if "string" == reflect.TypeOf(data).Name() {
+		resByte = data.(string)
 	} else {
-		json.Unmarshal([]byte(cookie), &currentUserResp)
-		return currentUserResp
+		marshalInfo, _ := json.Marshal(data)
+		resByte = string(marshalInfo)
+	}
+
+	var productsRes models.ProductsResp
+	var users models.Users
+	var usersResp models.UsersResp
+	var orderResp models.OrdersResp
+
+	if clazzName == "ProductsResp" {
+		json.Unmarshal([]byte(resByte), &productsRes)
+		if options["NoOwner"] == "true" {
+			usersResp.Id = productsRes.OwnerId
+			productsRes.Owner = usersResp
+		} else {
+			owner, _ := models.GetUsersById(productsRes.OwnerId)
+			productsRes.Owner = (this.asJson(owner, "UsersResp", options)).(models.UsersResp)
+		}
+		return productsRes
+	} else if clazzName == "OrdersResp" {
+		json.Unmarshal([]byte(resByte), &orderResp)
+		product, _ := models.GetProductsById(orderResp.ProductId)
+		orderResp.Product = (this.asJson(product, "ProductsResp", options)).(models.ProductsResp)
+		return orderResp
+	} else if clazzName == "UsersResp" {
+		json.Unmarshal([]byte(resByte), &usersResp)
+		return usersResp
+	} else if clazzName == "Users" {
+		json.Unmarshal([]byte(resByte), &users)
+		return users
 	}
 	return nil
+}
+
+// 从 Cookie 获取当前用户信息，转化成 Users 或 UsersResp
+func (this *BaseController) cookieUser(clazzName string) interface{} {
+	cookie, _ := this.GetSecureCookie("", "userInfo")
+	return this.asJson(cookie, clazzName, map[string]string{})
 }
 
 func (this *BaseController) SuccessJson(data interface{}) {
@@ -88,6 +130,7 @@ func init() {
 					logs.Error("Error Auth user:", authUserStr)
 				}
 			} else {
+				// 将当前用户信息转为字符串存储到 Cookie
 				userInfo, _ := json.Marshal(currentUser)
 				ctx.SetSecureCookie("", "userInfo", string(userInfo))
 			}
@@ -97,6 +140,7 @@ func init() {
 			ctx.Redirect(errorCode, "/login") // Todo render json
 		}
 	}
+	// 验证接口的当前用户权限
 	web.InsertFilter("/api/products/*", web.BeforeExec, FilterAuthUser)
 	web.InsertFilter("/api/orders/*", web.BeforeExec, FilterAuthUser)
 }

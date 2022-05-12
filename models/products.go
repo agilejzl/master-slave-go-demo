@@ -11,8 +11,9 @@ import (
 )
 
 type Products struct {
-	Id          int64     `orm:"column(id);auto"`
-	OwnerId     int64     `orm:"column(owner_id)"`
+	Id      int64 `orm:"column(id);auto"`
+	OwnerId int64 `orm:"column(owner_id)"`
+	//Owner       *Users    `orm:"rel(fk);column(owner_id)"`
 	Name        string    `orm:"column(name);size(255)"`
 	StockAmount int       `orm:"column(stock_amount)"`
 	PdPrice     float64   `orm:"column(pd_price);digits(8);decimals(2)"`
@@ -23,6 +24,8 @@ type Products struct {
 type ProductsResp struct {
 	Id          int64
 	Name        string
+	OwnerId     int64
+	Owner       UsersResp
 	StockAmount int
 	PdPrice     float64
 	UpdatedAt   time.Time `orm:"column(updated_at);type(datetime)"`
@@ -47,8 +50,12 @@ func AddProducts(m *Products) (id int64, err error) {
 // retrieves Products by Id. Returns error if Id doesn't exist
 func GetProductsById(id int64) (v *Products, err error) {
 	o := orm.NewOrm()
+	//user := &Users{}
+	//o.QueryTable("users").Filter("Id", id).RelatedSel().One(user)
+	//v = &Products{Id: id, OwnerId: user.Id}
 	v = &Products{Id: id}
 	if err = o.Read(v); err == nil {
+		//fmt.Println("GetProduct: ", v)
 		return v, nil
 	}
 	return nil, err

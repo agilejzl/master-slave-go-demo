@@ -46,7 +46,9 @@ func (c *ProductsController) Post() {
 func (c *ProductsController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 10, 0)
-	data, err := models.GetProductsById(id)
+	product, err := models.GetProductsById(id)
+	data := c.asJson(product, "ProductsResp", map[string]string{})
+
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
 	} else {
@@ -75,7 +77,9 @@ func (c *ProductsController) GetAll() {
 	var offset int64
 
 	query["OwnerId"] = c.currUserIdStr()
-	data, err := models.GetAllProducts(query, fields, sortby, order, offset, limit)
+	products, err := models.GetAllProducts(query, fields, sortby, order, offset, limit)
+	query["NoOwner"] = "true"
+	data := c.asJsonArray(products, "ProductsResp", query)
 	if err != nil {
 		c.ErrorJson(400, err.Error(), data)
 	} else {

@@ -24,12 +24,13 @@ type Orders struct {
 type OrdersResp struct {
 	Id         int64
 	UserId     int64
+	ProductId  int64
 	PdAmount   int
 	PdPrice    float64
 	TotalPrice float64
 	Status     int8
 	UpdatedAt  time.Time `orm:"column(updated_at);type(datetime)"`
-	Product    *Products
+	Product    ProductsResp
 }
 
 func (t *Orders) TableName() string {
@@ -49,11 +50,13 @@ func AddOrders(m *Orders) (id int64, err error) {
 }
 
 // retrieves Orders by Id. Returns error if Id doesn't exist
-func GetOrdersById(id int64) (v interface{}, err error) {
+func GetOrdersById(id int64) (v *Orders, err error) {
 	o := orm.NewOrm()
 	v = &Orders{Id: id}
 	if err = o.Read(v); err == nil {
-		//fmt.Println("OrdersById", id, v)
+		//user := &Users{}
+		//o.QueryTable("users").Filter("Id", id).RelatedSel().One(user)
+		//fmt.Println("OrdersById", id, user)
 		return v, nil
 	}
 	return nil, err
