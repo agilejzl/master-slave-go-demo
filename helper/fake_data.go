@@ -13,11 +13,11 @@ import (
 type FakeData struct{}
 
 func (fd FakeData) genRandInt(minNum int, maxNum int) int {
-	return minNum + rand.Intn(maxNum-minNum)
+	return minNum + rand.Intn(maxNum-minNum+1)
 }
 
 func (fd FakeData) genRandInt64(minNum int64, maxNum int64) int64 {
-	return minNum + rand.Int63n(maxNum-minNum)
+	return minNum + rand.Int63n(maxNum-minNum+1)
 }
 
 func (fd FakeData) genRandFloat64(min, max float64) float64 {
@@ -26,6 +26,13 @@ func (fd FakeData) genRandFloat64(min, max float64) float64 {
 		res[i] = min + rand.Float64()*(max-min)
 	}
 	return res[0]
+}
+
+func (fd FakeData) FakeUpdateOrderStatus() interface{} {
+	randOrder := models.GetRandomOrder()
+	status := fd.genRandInt(1, 2)
+	randOrder = models.UpdatePayStatus(randOrder.Id, status)
+	return randOrder
 }
 
 func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
@@ -44,7 +51,7 @@ func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
 }
 
 func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
-	product := models.Products{Id: userId}
+	product := models.Products{OwnerId: userId}
 	product.Name = "No." + " " + faker.Phonenumber()
 	product.StockAmount = fd.genRandInt(5400, 5600)
 	product.PdPrice = fd.genRandFloat64(0.0, 9.99)

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -16,7 +17,7 @@ type Orders struct {
 	ProductId  int64     `orm:"column(product_id)"`
 	PdAmount   int       `orm:"column(pd_amount)"`
 	TotalPrice float64   `orm:"column(total_price);digits(10);decimals(2)"`
-	Status     int8      `orm:"column(status);null"`
+	Status     int       `orm:"column(status);null"`
 	CreatedAt  time.Time `orm:"column(created_at);type(datetime);auto_now_add"`
 	UpdatedAt  time.Time `orm:"column(updated_at);type(datetime);auto_now"`
 }
@@ -41,6 +42,14 @@ func init() {
 	orm.RegisterModel(new(Orders))
 }
 
+func (t *Orders) Statuses() map[string]int {
+	statuses := make(map[string]int)
+	statuses["unpaid"] = 0
+	statuses["closed"] = 1
+	statuses["successful"] = 2
+	return statuses
+}
+
 // AddOrders insert a new Orders into database and returns
 // last inserted Id on success.
 func AddOrders(m *Orders) (id int64, err error) {
@@ -60,6 +69,31 @@ func GetOrdersById(id int64) (v *Orders, err error) {
 		return v, nil
 	}
 	return nil, err
+}
+
+func GetRandomOrder() (v *Orders) {
+	o := orm.NewOrm()
+	o.Raw("SELECT * FROM orders ORDER BY RAND() LIMIT 1;").QueryRow(&v)
+	return v
+}
+
+func UpdatePayStatus(id int64, status int) (order *Orders) {
+	order, _ = GetOrdersById(id)
+	order.Status = status
+	if order.Status == order.Statuses()["closed"] {
+		UpdateOrdersById(order)
+	} else if order.Status == order.Statuses()["successful"] {
+		o := orm.NewOrm()
+		o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+			product, _ := GetProductsById(order.ProductId)
+			UpdateOrdersById(order)
+			UpdateRawBySQL("UPDATE users SET credit=credit+? WHERE id=?", order.TotalPrice, product.OwnerId)
+			UpdateRawBySQL("UPDATE users SET credit=credit-? WHERE id=?", order.TotalPrice, order.UserId)
+			// Todo ensure credit >= 0
+			return nil
+		})
+	}
+	return
 }
 
 // GetAllOrders retrieves all Orders matches certain condition. Returns empty list if

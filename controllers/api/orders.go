@@ -35,6 +35,16 @@ func (c *OrdersController) Post() {
 	}
 }
 
+// Put ...
+// @router /:id [put]
+func (c *OrdersController) Put() {
+	//idStr := c.Ctx.Input.Param(":id")
+	//id, _ := strconv.ParseInt(idStr, 10, 0)
+	order := helper.FakeData{}.FakeUpdateOrderStatus()
+	data := c.asJson(order, "OrdersResp", map[string]string{})
+	c.SuccessJson(data)
+}
+
 // GetOne ...
 // @Title Get One
 // @Description get Orders by id

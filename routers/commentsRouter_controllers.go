@@ -27,6 +27,15 @@ func init() {
 
     beego.GlobalControllerRouter["master-slave-go-demo/controllers/api:OrdersController"] = append(beego.GlobalControllerRouter["master-slave-go-demo/controllers/api:OrdersController"],
         beego.ControllerComments{
+            Method: "Put",
+            Router: "/:id",
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["master-slave-go-demo/controllers/api:OrdersController"] = append(beego.GlobalControllerRouter["master-slave-go-demo/controllers/api:OrdersController"],
+        beego.ControllerComments{
             Method: "GetOne",
             Router: "/:id",
             AllowHTTPMethods: []string{"get"},
