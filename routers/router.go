@@ -1,5 +1,6 @@
+// Package routers
 // @APIVersion 1.0.0
-// @Title beego Test API
+// @Title API documents
 // @Description beego has a very cool tools to autogenerate documents for your API
 // @Contact teddy.jiang@qq.com
 // @TermsOfServiceUrl http://beego.me/

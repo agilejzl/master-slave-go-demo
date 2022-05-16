@@ -18,3 +18,4 @@ conf/app.conf
 .exe
 *.tmp
 logs/
+swagger.zip

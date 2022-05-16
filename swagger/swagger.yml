@@ -1,0 +1,84 @@
+swagger: "2.0"
+info:
+  title: API documents
+  description: beego has a very cool tools to autogenerate documents for your API
+  version: 1.0.0
+  termsOfService: http://beego.me/
+  contact:
+    email: teddy.jiang@qq.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /api
+paths: {}
+definitions:
+  models.Orders:
+    title: Orders
+    type: object
+    properties:
+      CreatedAt:
+        type: string
+        format: datetime
+      Id:
+        type: integer
+        format: int64
+      PdAmount:
+        type: integer
+        format: int64
+      ProductId:
+        type: integer
+        format: int64
+      Status:
+        type: integer
+        format: int64
+      TotalPrice:
+        type: number
+        format: double
+      UpdatedAt:
+        type: string
+        format: datetime
+      UserId:
+        type: integer
+        format: int64
+  models.Products:
+    title: Products
+    type: object
+    properties:
+      CreatedAt:
+        type: string
+        format: datetime
+      Id:
+        type: integer
+        format: int64
+      Name:
+        type: string
+      OwnerId:
+        type: integer
+        format: int64
+      PdPrice:
+        type: number
+        format: double
+      StockAmount:
+        type: integer
+        format: int64
+      UpdatedAt:
+        type: string
+        format: datetime
+  models.Users:
+    title: Users
+    type: object
+    properties:
+      CreatedAt:
+        type: string
+        format: datetime
+      Credit:
+        type: number
+        format: double
+      Id:
+        type: integer
+        format: int64
+      Name:
+        type: string
+      UpdatedAt:
+        type: string
+        format: datetime
