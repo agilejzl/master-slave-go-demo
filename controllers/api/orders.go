@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"master-slave-go-demo/helper"
+	"master-slave-go-demo/helpers"
 	"master-slave-go-demo/models"
 	"strconv"
 )
@@ -27,7 +27,7 @@ func (c *OrdersController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *OrdersController) Post() {
-	data, err := helper.FakeData{}.FakeNewOrder(c.currUserId())
+	data, err := helpers.FakeData{}.FakeNewOrder(c.currUserId())
 	if err == nil {
 		c.SuccessJson(data)
 	} else {
@@ -40,7 +40,7 @@ func (c *OrdersController) Post() {
 func (c *OrdersController) Put() {
 	//idStr := c.Ctx.Input.Param(":id")
 	//id, _ := strconv.ParseInt(idStr, 10, 0)
-	order := helper.FakeData{}.FakeUpdateOrderStatus()
+	order := helpers.FakeData{}.FakeUpdateOrderStatus()
 	data := c.asJson(order, "OrdersResp", map[string]string{})
 	c.SuccessJson(data)
 }

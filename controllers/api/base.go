@@ -2,11 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/beego/beego/v2/adapter/logs"
 	web "github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
-	"master-slave-go-demo/helper"
+	"master-slave-go-demo/helpers"
 	"master-slave-go-demo/models"
 	"reflect"
 	"strconv"
@@ -110,17 +109,24 @@ func (this *BaseController) ErrorJson(code int, msg string, data interface{}) {
 	this.StopRun()
 }
 
+func setLogger(filename string) {
+	if len(filename) == 0 {
+		filename = "debug.log"
+	}
+	logs.SetLogger(logs.AdapterFile, `{"filename":"logs/`+filename+`","level":7,"maxlines":0,"maxsize":0,"daily":true,"maxdays":10,"color":true}`)
+}
+
 func init() {
-	fmt.Println("BaseController init")
+	setLogger("")
 	var FilterAuthUser = func(ctx *context.Context) {
 		errorCode := 0
 		authUserStr := ctx.Request.Header["Authorization"]
-		userId := helper.FakeData{}.RandUserId(authUserStr)
+		userId := helpers.FakeData{}.RandUserId(authUserStr)
 
 		if userId <= 0 {
 			errorCode = 401
 		} else {
-			currentUser, err := helper.FakeData{}.FakeNewUser(userId)
+			currentUser, err := helpers.FakeData{}.FakeNewUser(userId)
 			if currentUser == nil {
 				if err == nil {
 					errorCode = 401
@@ -131,6 +137,7 @@ func init() {
 				}
 			} else {
 				// 将当前用户信息转为字符串存储到 Cookie
+				logs.Debug("currentUser:", currentUser.Name)
 				userInfo, _ := json.Marshal(currentUser)
 				ctx.SetSecureCookie("", "userInfo", string(userInfo))
 			}

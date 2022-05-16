@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"master-slave-go-demo/helper"
+	"master-slave-go-demo/helpers"
 	"master-slave-go-demo/models"
 	"strconv"
 )
@@ -28,7 +28,7 @@ func (c *ProductsController) URLMapping() {
 func (c *ProductsController) Post() {
 	// var product models.Products
 	// json.Unmarshal(c.Ctx.Input.RequestBody, &product)
-	data, err := helper.FakeData{}.FakeNewProduct(c.currUserId())
+	data, err := helpers.FakeData{}.FakeNewProduct(c.currUserId())
 	if err == nil {
 		c.SuccessJson(data)
 	} else {

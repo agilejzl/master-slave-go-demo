@@ -50,9 +50,6 @@ func AddProducts(m *Products) (id int64, err error) {
 // retrieves Products by Id. Returns error if Id doesn't exist
 func GetProductsById(id int64) (v *Products, err error) {
 	o := orm.NewOrm()
-	//user := &Users{}
-	//o.QueryTable("users").Filter("Id", id).RelatedSel().One(user)
-	//v = &Products{Id: id, OwnerId: user.Id}
 	v = &Products{Id: id}
 	if err = o.Read(v); err == nil {
 		//fmt.Println("GetProduct: ", v)

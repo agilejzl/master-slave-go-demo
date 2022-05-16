@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"fmt"
@@ -28,14 +28,14 @@ func (fd FakeData) genRandFloat64(min, max float64) float64 {
 	return res[0]
 }
 
-func (fd FakeData) FakeUpdateOrderStatus() interface{} {
+func (fd FakeData) FakeUpdateOrderStatus() *models.Orders {
 	randOrder := models.GetRandomOrder()
 	status := fd.genRandInt(1, 2)
 	randOrder = models.UpdatePayStatus(randOrder.Id, status)
 	return randOrder
 }
 
-func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
+func (fd FakeData) FakeNewOrder(userId int64) (*models.Orders, error) {
 	randProduct := models.GetRandomProduct()
 	PdAmount := fd.genRandInt(1, 10)
 	order := models.Orders{UserId: userId, ProductId: randProduct.Id,
@@ -43,14 +43,14 @@ func (fd FakeData) FakeNewOrder(userId int64) (models.Orders, error) {
 	id, err := models.AddOrders(&order)
 	if err == nil {
 		fmt.Println("NewOrder Id", id, ":", order)
-		return order, err
+		return &order, err
 	} else {
 		logs.Error("Error NewOrder:", err)
-		return models.Orders{}, err
+		return nil, err
 	}
 }
 
-func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
+func (fd FakeData) FakeNewProduct(userId int64) (*models.Products, error) {
 	product := models.Products{OwnerId: userId}
 	product.Name = "No." + " " + faker.Phonenumber()
 	product.StockAmount = fd.genRandInt(5400, 5600)
@@ -59,7 +59,7 @@ func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
 	id, err := models.AddProducts(&product)
 	if err == nil {
 		fmt.Println("NewProduct Id", id, ":", product)
-		return product, err
+		return &product, err
 	} else {
 		logs.Error("Error NewProduct:", err)
 		return nil, err
@@ -67,7 +67,7 @@ func (fd FakeData) FakeNewProduct(userId int64) (interface{}, error) {
 }
 
 // FakeNewUser 根据用户ID，查找或创建用户
-func (fd FakeData) FakeNewUser(userId int64) (interface{}, error) {
+func (fd FakeData) FakeNewUser(userId int64) (*models.Users, error) {
 	existUser, err := models.GetUsersById(userId)
 	if existUser != nil {
 		// logs.Debug("existUser:", existUser)
@@ -77,7 +77,7 @@ func (fd FakeData) FakeNewUser(userId int64) (interface{}, error) {
 		userModel := models.Users{Id: userId, Name: userIdStr}
 		_, err := models.AddUsers(&userModel)
 		if err == nil {
-			return userModel, err
+			return &userModel, err
 		} else {
 			logs.Error("Error NewUser:", err)
 			return nil, err

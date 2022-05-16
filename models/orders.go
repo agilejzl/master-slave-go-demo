@@ -63,8 +63,6 @@ func GetOrdersById(id int64) (v *Orders, err error) {
 	o := orm.NewOrm()
 	v = &Orders{Id: id}
 	if err = o.Read(v); err == nil {
-		//user := &Users{}
-		//o.QueryTable("users").Filter("Id", id).RelatedSel().One(user)
 		//fmt.Println("OrdersById", id, user)
 		return v, nil
 	}
